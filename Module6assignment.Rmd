@@ -1,0 +1,241 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+
+
+Libraries  
+```{r}
+options(tidyverse.quiet=TRUE)
+library(tidyverse)
+library(cluster) #algorithms for clustering
+library(factoextra) #visualization
+library(dendextend) #viewing clustering dendograms
+```
+
+```{r}
+library(readr)
+trucks_1 <- read_csv("Week6/trucks-1.csv")
+trucks = trucks_1
+str(trucks)
+summary(trucks)
+```
+
+
+```{r}
+trucks1 = trucks %>% select(-Driver_ID) %>% 
+  drop_na() #row-wise deletion of missingness
+str(trucks1)
+summary(trucks1)
+
+
+ggplot(trucks1, aes(Distance, Speeding)) +
+  geom_point() +
+  geom_point() + theme_bw()
+```
+
+**Q1 Answer: B. The data points are arranged in what appear to be four clusters and C.Longer distance drivers appear more likely to speed**
+
+```{r}
+trucks_scaled = scale(trucks1) 
+summary(trucks_scaled)
+
+
+```
+
+**Q2 Max:3.1560 **
+
+
+
+
+```{r}
+kmeans_recipe = recipe(~ Distance + Speeding, trucks1) 
+
+truck_dummy = kmeans_recipe %>% 
+  #step_dummy(all_nominal(), one_hot = TRUE) %>%
+  step_scale(all_numeric()) %>%
+  step_center(all_numeric()) 
+
+truck_dummy = prep(truck_dummy, trucks1) #prepares the recipe
+
+truck_cleaned = bake(truck_dummy, trucks1) #applies the recipe and yields a data frame
+
+
+set.seed(64)
+clusts = 
+  tibble(k = 1:2) %>%
+  mutate(
+    kclust = map(k, ~kmeans(truck_cleaned, .x)),
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, truck_cleaned)
+  )
+
+clusts
+
+```
+
+
+```{r}
+clusters = 
+  clusts %>%
+  unnest(cols = c(tidied))
+
+assignments = 
+  clusts %>% 
+  unnest(cols = c(augmented))
+
+clusterings = 
+  clusts %>%
+  unnest(cols = c(glanced))
+```
+
+```{r}
+p1 = 
+  ggplot(assignments, aes(x = Distance, y = Speeding)) +
+  geom_point(aes(color = .cluster), alpha = 0.8) + 
+  facet_wrap(~ k)
+p1
+```
+**Q3: C. Neither of these statements apply to the resulting clusters**
+
+
+
+
+
+
+
+
+```{r}
+
+kmeans_recipe = recipe(~ Distance + Speeding, trucks1) 
+
+truck_dummy = kmeans_recipe %>% 
+  #step_dummy(all_nominal(), one_hot = TRUE) %>%
+  step_scale(all_numeric()) %>%
+  step_center(all_numeric()) 
+
+truck_dummy = prep(truck_dummy, trucks1) #prepares the recipe
+
+truck_cleaned = bake(truck_dummy, trucks1) #applies the recipe and yields a data frame
+
+
+set.seed(412)
+clusts = 
+  tibble(k = 1:8) %>%
+  mutate(
+    kclust = map(k, ~kmeans(truck_cleaned, .x)),
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, truck_cleaned)
+  )
+
+clusts
+
+```
+
+
+```{r}
+clusters = 
+  clusts %>%
+  unnest(cols = c(tidied))
+
+assignments = 
+  clusts %>% 
+  unnest(cols = c(augmented))
+
+clusterings = 
+  clusts %>%
+  unnest(cols = c(glanced))
+```
+
+```{r}
+p1 = 
+  ggplot(assignments, aes(x = Distance, y = Speeding)) +
+  geom_point(aes(color = .cluster), alpha = 0.8) + 
+  facet_wrap(~ k)
+p1
+```
+```{r}
+ggplot(clusterings, aes(k, tot.withinss)) +
+  geom_line() +
+  geom_point()
+```
+
+
+**Q4:4**
+
+
+Let's try 4 clusters  
+```{r}
+set.seed(412)
+clusters = kmeans(truck_cleaned, 4)
+```
+
+Attach cluster to dataset
+```{r}
+truck = augment(clusters, trucks1)
+str(truck)
+```
+
+Plots
+```{r}
+ggplot(truck, aes(x=Distance,y=Speeding,color=factor(.cluster))) + geom_point()
+```
+**Q5:4**
+
+
+
+
+```{r}
+
+kmeans_recipe = recipe(~ Distance + Speeding, trucks1) 
+
+truck_dummy = kmeans_recipe %>% 
+  #step_dummy(all_nominal(), one_hot = TRUE) %>%
+  step_scale(all_numeric()) %>%
+  step_center(all_numeric()) 
+
+truck_dummy = prep(truck_dummy, trucks1) #prepares the recipe
+
+truck_cleaned = bake(truck_dummy, trucks1) #applies the recipe and yields a data frame
+
+
+set.seed(64)
+clusts = 
+  tibble(k = 1:4) %>%
+  mutate(
+    kclust = map(k, ~kmeans(truck_cleaned, .x)),
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, truck_cleaned)
+  )
+
+clusts
+
+```
+
+
+```{r}
+clusters = 
+  clusts %>%
+  unnest(cols = c(tidied))
+
+assignments = 
+  clusts %>% 
+  unnest(cols = c(augmented))
+
+clusterings = 
+  clusts %>%
+  unnest(cols = c(glanced))
+```
+
+```{r}
+p1 = 
+  ggplot(assignments, aes(x = Distance, y = Speeding)) +
+  geom_point(aes(color = .cluster), alpha = 0.8) + 
+  facet_wrap(~ k)
+p1
+```
+**Q6: All Above**

@@ -1,0 +1,117 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+
+# Module 6 - Assignment 1
+## Pusarla, Praveenkumar
+### Lubridate
+
+```{r Pacakage calls and Data Upload}
+library(tidyverse)
+library(lubridate)
+library(readr)
+Appointments <- read_csv("Appointments.csv")
+Appointments
+```
+
+#### Working with Dates
+
+```{r}
+Appointments <- Appointments %>% 
+    mutate(
+    ReservationYear = 2019)
+
+Appointments    
+
+```
+
+```{r Additing New Variables of data}
+
+Appointments <- Appointments %>% 
+    mutate(
+    ReservationDate =make_date (month=ReservationMonth, day=ReservationDay, year=ReservationYear),
+    CreationDate = make_date (month=CreationMonth, day=CreationDay, year=CreationYear))
+
+Appointments
+
+```
+```{r ReservationSpan}
+
+Appointments <- Appointments %>% 
+    mutate(
+    ReservationSpan = ReservationDate - CreationDate)
+
+Appointments
+
+
+```
+
+
+####  Exploratory Analysis
+
+
+```{r Summary}
+
+summary(Appointments)
+
+Appointments$ReservationSpan <- as.integer(Appointments$ReservationSpan)
+
+summary(Appointments)
+
+```
+
+**Answering the question 19 of Module 6 Assignment1**
+
+a. What is the average time between appointment creation and the actual reservation date?
+
+The mean of ReservationSpan = 38.53 days
+
+b. What was the max time?
+
+The Max ReservationSpan = 207.00 days
+
+c. What was the min time?
+
+The Min ReservationSpan = 1.00 days
+
+
+
+```{r Correlation}
+
+cor(Appointments$ReservationSpan, Appointments$Show)
+
+
+
+```
+
+
+**Answering the question 20 of Module 6 Assignment1**
+
+a. Are ReservationSpan and Show highly correlated?
+
+As per the correlation output between ReservationSpan and Show present on the Appointments data it can be concluded that they are not much related
+
+
+```{r barchart}
+
+ggplot(data = Appointments, aes (x=Show)) +
+  geom_bar(width = 0.1) +
+  labs(title = "Bar chart of Show ",
+          x = "Show", 
+          y = "Count"
+       )
+
+
+```
+
+**Answering the question 21 of Module 6 Assignment1**
+
+
+a. Based on 0 being “no show” and 1 being “show”, did most people make their appointments?
+
+Based on the bar char we can say that most the people are showing up to the appointments
+
+
+

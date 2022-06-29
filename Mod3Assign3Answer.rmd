@@ -1,0 +1,136 @@
+---
+output:
+  word_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+# Module 3 - Assignment 3
+## Pusarla, Praveenkumar
+### More Practice with Plots
+
+
+
+```{r Loading packages and data sets}
+library(tidyverse)
+library(readr)
+GOOG <- read_csv("GOOG.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
+head(GOOG)
+```
+
+
+#### Google Stock Price Plots
+
+The following is an analysis of Google’s stock price from October of 2019 to October of 2020. This will
+include a scatter, line, bar, histogram and boxplot. All the plots represent the closing price on the dates
+listed on the x-axis.
+
+```{r Diffrent kinds of Stock Price Plots}
+
+ggplot(data = GOOG, aes (x=Date,y=Close)) +
+  geom_point() +
+  labs(title = "GOOG Close by Date Scatterplot",
+          x = "Date", 
+          y = "Close Price"
+       )
+
+ggplot(data = GOOG, aes (x=Date,y=Close)) +
+  geom_line() +
+  labs(title = "GOOG Close by Date Linegraph",
+          x = "Date", 
+          y = "Close Price"
+       )
+
+ggplot(data = GOOG, aes (x=Date,y=Close)) +
+  geom_col() +
+  labs(title = "GOOG Close by Date Barchart",
+          x = "Date", 
+          y = "Close Price"
+       )
+
+
+ggplot(data = GOOG, aes (Close)) +
+  geom_histogram() +
+  labs(title = "GOOG Close Histogram",
+          x = "Close", 
+          y = "Count"
+       )
+
+
+ggplot(data = GOOG, aes (Close)) +
+  geom_boxplot() +
+  labs(title = "GOOG Close Boxplot",
+          x = "Close", 
+          y = "Close Price Average"
+       )
+
+
+ggplot(data = GOOG, aes (x=Date,y=Close)) +
+  geom_point(color = "blue") +
+  geom_line(color = "red") +
+  labs(title = "GOOG Close by Date Point and Line Graph",
+          x = "Date", 
+          y = "Close Price"
+       )
+
+
+```
+
+The most useful plots out of all the above plots are:  
+
+* Scatterplot - Point plot
+* Linegraph 
+* Point and Line graph with color
+
+All the above graph clearly articulate the closing prices trend between October of 2019 to October of 2020
+
+#### Google Stock Daily Price Comparisons
+
+```{r Advanced Plots}
+
+ggplot(GOOG) +
+  geom_line(aes (x=Date, y=High, color="High"))+
+  geom_line(aes (x=Date, y=Low, color="Low")) +
+  labs(title = "GOOG High and Low Stock Price by Date Comparison"
+       )
+
+ggplot(GOOG) +
+  geom_line(aes (x=Date, y=Open, color="Open"))+
+  geom_line(aes (x=Date, y=Close, color="Close")) +
+  labs(title = "GOOG Open and Close Stock Price by Date Comparison"
+       )
+
+ggplot(GOOG, aes(x=Date,y=Close)) +
+  geom_area(color="black", fill="blue", aplha=.2) +
+  labs(title = "GOOG Close Stock Price by Date area plot"
+       )
+
+ggplot(GOOG, aes(x=Date,y=Open)) +
+  geom_area(color="blue", fill="green", aplha=.1) +
+  labs(title = "GOOG Open Stock Price by Date area plot"
+       ) 
+
+```
+
+```{r Comparing Monthly Prices}
+
+MayPrice <- subset(GOOG, Date >"2020-04-30" & Date <"2020-06-01")
+head(MayPrice)
+
+AprPrice <- subset(GOOG, Date > "2020-03-31" & Date <"2020-05-01")
+head(AprPrice)
+
+ggplot(data=MayPrice, aes(x=Date, y=Close)) +
+  geom_point() +
+  geom_text(aes(label=round(Close)), size = 3, vjust = -1) +
+  labs(title = "GOOG May Close Stock Price by Date with point details"
+       ) 
+
+ggplot(data=AprPrice, aes(x=Date, y=Open)) +
+  geom_point() +
+  geom_text(aes(label=round(Open)), size = 2, vjust = -1.5) +
+  labs(title = "GOOG Apr Open Stock Price by Date with point details"
+       ) 
+
+```
+

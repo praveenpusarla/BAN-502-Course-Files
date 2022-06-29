@@ -1,0 +1,123 @@
+# Assignemen1 Module2
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(GGally)
+library(lmtest) #for the Durbin-Watson test
+```
+
+```{r data set}
+
+air = airquality
+
+str(air)
+summary(air)
+
+```
+
+1. Number of rows **153**
+2. Number of columns **6**
+3. There is a missing data in Ozone variable - **True**
+
+```{r}
+ggpairs(air)
+```
+```{r}
+ggplot(air,aes(x=Ozone,y=Temp)) + geom_point(alpha=0.5) + theme_bw()
+```
+
+4. Which variable is most likely be a response of variable - **Temp** or **OZone**
+
+```{r}
+
+air2 = air %>% drop_na()
+str(air2)
+summary(air2)
+```
+
+5. rows in air2 **111**
+6. columns in air2 **6**
+
+```{r}
+
+ggpairs(air2)
+
+ggcorr(air2, lable = "TRUE")
+
+```
+
+
+7. Variabl emost strongly related  with Ozone is **Temp**
+
+8. Which of the variable is least strongly related with Ozone is **Day**
+
+```{r}
+ggplot(air,aes(x=Temp,y=Ozone)) + geom_point(alpha=0.5) + theme_bw()
+```
+
+Q9. **As temp Increase Ozone increase**
+
+
+```{r}
+#reusing code from before (just changing names where needed)
+air_simple = recipe(Ozone ~ Temp, air2)
+
+lm_model = #give the model type a name 
+  linear_reg() %>% #specify that we are doing linear regression
+  set_engine("lm") #specify the specify type of linear tool we want to use 
+
+lm_wflow = 
+  workflow() %>% 
+  add_model(lm_model) %>% 
+  add_recipe(air_simple)
+
+lm_fit = fit(lm_wflow, air2)
+```
+
+```{r}
+summary(lm_fit$fit$fit$fit)
+```
+
+10. Slope = **2.4391**
+11. R-squared = **0.488**
+12. Temp variable is significant in the model -  **Yes**
+13. 
+```{r}
+temp_var = predict(lm_fit$fit$fit$fit, interval = "prediction") #accessing the fit object with the three $fit
+new_df = cbind(air2, temp_var)
+
+ggplot(new_df, aes(x = Temp, y = Ozone)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  geom_line(aes(y=lwr), color = "red", linetype = "dashed") +
+  geom_line(aes(y=upr), color = "red", linetype = "dashed") +
+  theme_bw() 
+
+confint(lm_fit$fit$fit$fit)
+```
+
+Q13 **False**
+
+
+
+
+```{r}
+#Manually
+-147.6461 + 2.4391*80
+
+#Using predict function
+testdata = data.frame(Temp = 80)
+predict(lm_fit, new_data = testdata)
+
+```
+
+
+
+```{r}
+dwtest(lm_fit$fit$fit$fit)
+```
+
+We fail to reject the null hypothesis with a p-value greater than 0.05. This suggests that the residuals are likely independent.
+
+

@@ -1,0 +1,50 @@
+# Detecting and Removoing Outliers
+
+The following examples come from the readings assigned this week in Canvas
+
+```{r}
+sales <- c(1,2,50,45,67,200,230,55,56,49)
+boxplot(sales)
+```
+```{r}
+#finds outlier values
+OutlierValues <- boxplot(sales)$out 
+
+#PrintOutliers
+OutlierValues 
+
+which(sales %in% OutlierValues)
+
+#Remove Outliers
+sales[!(sales %in% OutlierValues)]
+
+sales <- sales[!(sales %in% OutlierValues)]
+
+boxplot(sales)
+```
+## From article: Removing Outliers - quick and dirty
+https://rpubs.com/Mentors_Ubiqum/removing_outliers
+
+```{r}
+
+MTcars_local <- c(mtcars$disp[which(mtcars$disp >420)]*2)
+MTcars_local
+
+mtcars$disp[which(mtcars$disp >420)] <- c(mtcars$disp[which(mtcars$disp >420)]*2)
+boxplot(mtcars$disp)
+
+
+
+```
+```{r}
+
+mtcars_outliers <- boxplot(mtcars$disp,plot=FALSE)$out
+
+mtcars[which(mtcars$disp %in% mtcars_outliers),]
+
+```
+```{r}
+mtcars <- mtcars[-which(mtcars$disp %in% mtcars_outliers),]
+boxplot(mtcars$disp)
+```
+

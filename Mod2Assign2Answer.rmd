@@ -1,0 +1,56 @@
+---
+output:
+  word_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+# Module 2 - Assignment2
+
+## Pusarla, Praveen
+
+## Introduction to R Markdown
+
+This is the first *R Markdown document* for the MBA-503 Programming for Analytics.
+In this assignment we will go over the previous topics covered in Module1 classes including atomic vectors, data frames and data types.
+
+Now we will be reviewing the **question2** of module1 assignments related to Loading Packages and Plotting data. We will be plotting a basic graph showing sales over the past 6 months.
+
+
+
+```{r Plot of Sales by Month}
+library("tidyverse")
+sales<-c(50,150,200,100,300,250)
+month<-(1:6)
+qplot(month,sales)
+```
+
+
+The month with largest sales is Obtained by running which.max(q2_sales$sales) and it is Month **5**.
+The sales amount for that month can be obtained by running max(sales) and it is **300**.
+
+
+
+
+Now let us review **question4** of module1 assignment related to working with Data Frames.  
+
+
+
+```{r Working with Data Frames}
+months<-c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct","Nov", "Dec")
+Sales <-c(150.25, 258.54, 268.55, 122.52, 987, 458.82, 667.23, 845.54, 586.78, 888.58, 756.12, 456.84)
+Yearly_sales<-data_frame(months,Sales)
+Yearly_sales
+#View(Yearly_sales)
+which.max(Yearly_sales$Sales)
+which.min(Yearly_sales$Sales)
+qplot(months,Sales)
+```
+
+
+Month with most sales is **May**. It is obtained by Run the command which.max(Yearly_sales$Sales) to know the row position in the data frame.
+
+
+Month with least sales is **Apr** which is obtained by Run the command which.min(Yearly_sales$Sales) to know the row position in the data frame.
+

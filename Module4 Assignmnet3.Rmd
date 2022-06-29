@@ -1,0 +1,190 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+Libraries  
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(mice) #package for imputation
+library(VIM) #visualizing missingness
+library(rpart) #for classification trees
+library(rpart.plot) #for plotting trees
+library(RColorBrewer) #better visualization of classification trees
+library(rattle) #better visualization of classification trees
+library(caret)
+library(skimr)
+```
+
+```{r}
+library(readr)
+heart_disease_1 <- read_csv("heart_disease-1.csv")
+heart = heart_disease_1
+#str(heart)
+#summary(heart)
+#skim(heart)
+
+
+heart = heart %>% mutate(Sex = as_factor(Sex)) %>% 
+  mutate(ChestPainType  = as_factor(ChestPainType )) %>%
+  mutate(RestingECG = as_factor(RestingECG)) %>% 
+  mutate(ExerciseAngina = as_factor(ExerciseAngina)) %>%
+  mutate(ST_Slope = as_factor(ST_Slope)) %>% 
+  mutate(HeartDisease = as_factor(HeartDisease)) %>% 
+  mutate(HeartDisease = fct_recode(HeartDisease, "No" = "0", "Yes" = "1"))
+
+str(heart)
+summary(heart)
+skim(heart)
+
+```
+data Splitting
+ 
+```{r}
+set.seed(12345) 
+heart_split = initial_split(heart, prop = 0.7, strata = HeartDisease) #70% in training
+train = training(heart_split)
+test = testing(heart_split)
+```
+
+Q1: Tarining Set **642** Testing set **276**
+
+Let's build a classification tree.  
+```{r}
+heart_recipe = recipe(HeartDisease  ~., train) %>%
+step_dummy(all_nominal(),-all_outcomes())
+
+tree_model = decision_tree() %>% 
+  set_engine("rpart", model = TRUE) %>% #don't forget the model = TRUE flag
+  set_mode("classification")
+
+heart_wflow = 
+  workflow() %>% 
+  add_model(tree_model) %>% 
+  add_recipe(heart_recipe)
+
+heart_fit = fit(heart_wflow, train)
+```
+
+```{r}
+#extract the tree's fit from the fit object
+tree = heart_fit %>% 
+  pull_workflow_fit() %>% 
+  pluck("fit")
+
+#plot the tree
+fancyRpartPlot(tree)
+```
+Q2 **ST_Slope**
+
+```{r}
+heart_fit$fit$fit$fit$cptable
+```
+
+Q3: **0.01**
+
+
+Create our folds  
+```{r}
+set.seed(123)
+folds = vfold_cv(train, v = 5)
+```
+
+
+```{r}
+heart_recipe1 = recipe(HeartDisease ~., train) %>%
+  step_dummy(all_nominal(),-all_outcomes())
+
+tree_model = decision_tree(cost_complexity = tune()) %>% 
+  set_engine("rpart", model = TRUE) %>% #don't forget the model = TRUE flag
+  set_mode("classification")
+
+tree_grid = grid_regular(cost_complexity(),
+                          levels = 25) #try 25 sensible values for cp
+
+heart_wflow1 = 
+  workflow() %>% 
+  add_model(tree_model) %>% 
+  add_recipe(heart_recipe1)
+
+tree_res = 
+  heart_wflow1 %>% 
+  tune_grid(
+    resamples = folds,
+    grid = tree_grid
+    )
+
+tree_res
+```
+
+Borrowed code from: https://www.tidymodels.org/start/tuning/
+```{r}
+tree_res %>%
+  collect_metrics() %>%
+  ggplot(aes(cost_complexity, mean)) +
+  geom_line(size = 1.5, alpha = 0.6) +
+  geom_point(size = 2) +
+  facet_wrap(~ .metric, scales = "free", nrow = 2) 
+```
+
+```{r}
+best_tree = tree_res %>%
+  select_best("accuracy")
+
+best_tree
+```
+Q4: **0.78**
+
+Q5: **0.0074**
+
+```{r}
+final_wf = 
+  heart_wflow1 %>% 
+  finalize_workflow(best_tree)
+```
+
+```{r}
+final_fit = fit(final_wf, train)
+
+tree = final_fit %>% 
+  pull_workflow_fit() %>% 
+  pluck("fit")
+
+fancyRpartPlot(tree, tweak = 1.5) 
+
+```
+
+Q6: **HeartDisease**
+
+
+Predictions on training set  
+```{r}
+treepred = predict(final_fit, train, type = "class")
+head(treepred)
+```
+
+Caret confusion matrix and accuracy, etc. calcs  
+```{r}
+confusionMatrix(treepred$.pred_class,train$HeartDisease,positive="Yes") #predictions first then actual
+```
+Q7: **0.8754**
+
+
+Q8 **0.9239**
+
+Q9: **0.553**
+
+
+
+Predictions on training set  
+```{r}
+treepred1 = predict(final_fit, test, type = "class")
+head(treepred1)
+```
+
+```{r}
+confusionMatrix(treepred1$.pred_class,test$HeartDisease,positive="Yes") #predictions first then actual
+```
+
+Q10 **0.8478**

@@ -1,0 +1,140 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+### R Studio Refresher assignment
+
+```{r}
+library(tidyverse)
+
+diamonds = ggplot2::diamonds # Q1 code
+str(diamonds)
+
+```
+
+Question 1: The “ggplot2” package (part of the tidyverse set of packages) includes a dataset containing
+data on diamonds. Use the line of code below to read in this dataset into a data frame called “diamonddata”.
+Use an appropriate R command to answer the question: 
+How many rows are in this dataset? **53940**
+
+Question 2: How many columns are in the “diamonds” dataset? **10**
+
+Question 3: Using ggplot, create a scatterplot of caret (x axis) versus price (y axis). Which statement best
+describes the relationship between “caret” and “price”?
+
+
+
+```{r}
+ggplot(diamonds, aes(x=carat,y=price)) +geom_point() + theme_bw()
+```
+
+Q3 Answer is **B. As caret increases price increases**
+
+Question 4: Repeat Question 3, but in this plot color the scatterplot points by the “cut” variable. Which
+statement best describes the relationship between “cut” and “price”?
+A. As cut quality increases price increases
+B. As cut quality decreases price increases
+C. As cut quality increases price does not change
+
+```{r}
+
+ggplot(diamonds, aes(x=carat,y=price, color=cut)) +geom_point() + theme_bw()
+
+```
+Q4 : Answer **A. As cut quality increases price increases**
+
+
+
+Question 5: Repeat Question 4, but in this plot you should facet by “color”. Faceting a plot is described at
+this link: http://www.cookbook-r.com/Graphs/Facets_(ggplot2)/.
+What does “faceting” do to the plot?
+A. Creates a separate scatterplot for each “cut”
+B. Creates a separate scatterplot for each “carat”
+C. Creates a separate scatterplot for each “color”
+D. Creates a separate scatterplot for each “price”
+
+
+```{r}
+
+ggplot(diamonds, aes(x=carat,y=price, color=cut)) +geom_point() + theme_bw() + facet_grid(color ~ .)
+
+```
+Q5 Answer: **C. Creates a separate scatterplot for each “color”**
+
+
+
+Question 6: Use the “read_csv” function to read-in the “InventoryData.csv” file as a data frame called
+“inventory”. NOTE: In this course we will ALWAYS (unless instructed otherwise) use the “read_csv” command.
+Do NOT use the “read.csv” command.
+In the “inventory” data frame that you have just created, what type of variable is “Supplier”?
+A. numeric
+B. integer
+C. factor
+D. character
+
+```{r}
+library(readr)
+InventoryData <- read_csv("InventoryData.csv")
+InventoryData
+str(InventoryData)
+```
+Q6 Answer **D. character**
+
+Question 7 In the “inventory” data frame that you have just created, what is the mean of the “On Hand”
+variable?
+
+```{r}
+invmean = InventoryData %>% summarise(invmean = mean(`On Hand`))
+
+invmean
+
+
+```
+
+
+Q7 Answer **quantity of Items present in the store belomning to a specific supplier's item number** 
+
+
+Question 8: Use a filter to create a new data frame called “inventoryA” containing only inventory from
+Supplier A. How many rows are in this new data frame?
+
+
+```{r}
+
+inventoryA = InventoryData %>% filter (Supplier == "A")
+str(inventoryA)
+```
+
+Q8 Answer **3695 rows**
+
+Question 9: What does the line of code shown below do? Note the use of the backtick character (on the
+tilde key on your computer’s keyboard) to delineate the variable names with spaces in them.
+inventoryA = mutate(inventoryA, OnHandRatio = `On Hand`/ `Annual Demand`)
+A. Creates a new variable called “inventoryA”
+B. Creates a new variable called “OnHandRatio”
+C. Creates a new data frame called “OnHandRatio”
+
+```{r}
+inventoryA = mutate(inventoryA, OnHandRatio = `On Hand`/`Annual Demand`)
+#inventoryA = mutate(inventoryA, OnHandRatio = on Hand/Annual Demand)
+str(inventoryA)
+```
+Q9 Answer **B. Creates a new variable called “OnHandRatio”**
+
+Question 10: Using the “inventoryA” object that you created in Question 9, create a new data frame called
+“avg_cost” that contains the average “Cost per Unit ($)” by each “Item SKU” (let this quantity be in a
+variable called “SKUAvgCost. Hint: Recall the summarize and group_by functions and the use of the backtick
+character from Task 8. Your data frame should have only two columns:”Item SKU” and “SKUAvgCost”.
+What is the “SKUAvgCost” of items with an “Item SKU” of 011?
+
+
+```{r}
+
+avg_cost = inventoryA %>% group_by(`Item SKU`) %>% summarise(SKUAvgCost = mean(`Cost per Unit ($)`))
+avg_cost #display the newly grouped and summarized data
+
+```
+
+Q10 Answer **12.330000**
+

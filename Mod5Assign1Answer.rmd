@@ -1,0 +1,163 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+
+# Module 5 - Assignment 1
+## Pusarla, Praveenkumar
+### Data Wrangling
+```{r library calss and file imports}
+library(tidyverse)
+library(readxl)
+UN_migrant <- read_excel("UN_migrant.xlsx", 
+    sheet = "Table 6", col_types = c("numeric", 
+        "text", "text", "numeric", "text", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "text", "text", "text", "text", "numeric", 
+        "numeric", "text", "text", "text", 
+        "text", "text"), skip = 15)
+UN_migrant
+```
+
+####  Cleaning Data with dplyr
+
+```{r Rnaming Colums selecting specific columns}
+
+UN_migrant <- UN_migrant %>%
+  rename("Country" = "...2") %>%
+  rename("Country_Code" ="...4") %>%
+  rename("Type" = "...5") %>%
+  rename("1990" = "1990...6") %>%
+  rename("1995" = "1995...7") %>%
+  rename("2000" = "2000...8") %>%
+  rename("2005" = "2005...9") %>%
+  rename("2010" = "2010...10") %>%
+  rename("2015" = "2015...11")
+
+Migration <- select(UN_migrant,Country,Country_Code,Type,"1990","1995","2000","2005","2010","2015")
+head(Migration)
+
+
+```
+
+#### Creating tidy data using tidyr
+
+
+```{r Creation of Tidy data}
+
+Migration2 <- Migration %>% 
+  pivot_longer(c('1990','1995','2000','2005','2010','2015'), names_to = 'year', values_to = 'cases')
+
+Migration2
+
+Migration2$year <- as.integer(Migration2$year)
+
+```
+
+
+#### Research Questions
+
+```{r research datasets}
+
+RegionalMigration <- Migration2 %>%
+  select(Country,everything()) %>%
+  filter(Country %in% c("Africa","Asia", "Europe", "Oceania", "Northern America", "South America"))
+
+RegionalMigration
+
+Americas <- Migration2 %>%
+  select(Country,everything()) %>%
+  filter(Country %in% c("Central America", "South America", "Northern America"))
+
+Americas
+
+```
+
+
+#### Worldwide Migration based on Regions
+
+```{r  Worldwide Migration analysis}
+
+ggplot(RegionalMigration, mapping = aes(year, cases, color=Country)) +
+  geom_point() + 
+  labs(title = "Worldwide Migration",
+          x = "Year", 
+          y = "Migrants"
+       )
+
+ggplot(RegionalMigration, mapping = aes(year, cases, fill=Country)) +
+  geom_col() +
+  scale_fill_discrete(name="Region of World") + 
+  labs(title = "Worldwide Migration",
+          x = "Year", 
+          y = "Migrants"
+       ) 
+  
+
+```
+
+**Worldwide Migration based on Regions Responses**
+
+a. Which region in the world had the highest number of migrants in the year 2005?
+
+Asia region has the highest number of migrants in the year 2005
+
+b. Over the years, which region consistently has the most migrants every 5 year span? Which has the
+second most?
+
+Asia region has the most number of migrants consistently every 5 years followed by Africa 
+
+c. What region has seen the fewest migrants over the years?
+
+Oceania region has the fewest number of migrants over years 
+
+d. Which plot was most useful in answering these questions and why?
+
+I see both plots are useful. But visually bar chart provides clear indication based on the colored area on the bars representing each region
+
+####  Americas Migration by Region
+
+```{r Americas Migrant Analysis}
+
+ggplot(Americas, mapping = aes(year, cases, color=Country)) +
+  geom_point() + 
+  labs(title = "Americas Migration",
+          x = "Year", 
+          y = "Migrants"
+       )
+
+ggplot(Americas, mapping = aes(year, cases, fill=Country)) +
+  geom_col() +
+  scale_fill_discrete(name="Americas Region") + 
+  labs(title = "Americas Migration",
+          x = "Year", 
+          y = "Migrants"
+       ) 
+  
+
+
+```
+
+**Americas Migration by Region responses** 
+
+a. In 1990, which region had the largest number of migrants for the Americas?
+
+Central America has the highiest number of Migrants in Amreicas Regions.
+
+b. Has this region continued to grow since 1990?
+
+No migrents from central america drastically reduce from 1990 to 2005
+
+c. What trends do you notice happening in the Americas over the years?
+
+Migrants from north America  and central america are reducing where as south american migrates are incresing 
+
+d. Specifically, has Northern America increased or decreased over the years?
+
+Between 1990 to 1995 the NA migrants increased but from 1995 to 2015 it is decreasing 
+
+e. Which plot was most useful in answering these questions and why?
+
+Scatter plot was very useful in answering the above questions as it clearly show the trends.  

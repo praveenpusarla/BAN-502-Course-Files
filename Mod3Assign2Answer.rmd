@@ -1,0 +1,79 @@
+---
+output:
+  word_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: console
+---
+# Module 3 - Assignment 2
+## Pusarla, Praveenkumar
+### Exploratory Data Analysis
+```{r loading tidyverse}
+library(tidyverse)
+data("diamonds")
+head(diamonds)
+```
+
+#### Diamond Color and Price
+
+```{r Scatterplot Carat VS Price}
+ggplot(data = diamonds, aes (x=carat,y=price)) +
+  geom_point() 
+
+ggplot(diamonds, aes(x=carat)) + 
+  geom_histogram(binwidth=0.05)
+```
+
+* From th scatterplot between carat and prices we can clearly see a *direct relationship* between them. As the Carat size increases the price of the diamonds increases.
+* From the scatterplot as well as the histogram it is quiet evident that dimonds of certain carat sizes are more predominant in the diamonds dataset example: 0.25, 0.5, 0.75, 1.0, 1.25, 1.5. 2.0 etc. 
+
+```{r Scatterplot Color VS Price}
+
+ggplot(data = diamonds, aes (x=color,y=price)) +
+  geom_point(position='jitter')
+
+```
+
+* The graph shows vertical scatters for each color. Color F, G, H, I diamonds are having more high price varieties than other. But nothing much can be drawn from the scatterplot even with jitter.  
+
+```{r Scatterplot Carat VS Price with Color}
+
+ggplot(data = diamonds, aes (x=carat,y=price, color = color)) +
+  geom_point() +
+  geom_smooth()
+
+```
+
+* Color and Price are related. Certain color diamonds (D, E) are pricier than others (I, J). 
+* Color is associated with Carat Size. Only I, J Color diamonds are available after 3.5 and above carat size.  
+
+
+```{r Scatterplot Carat VS Price with Color for sample data}
+head("diamonds")
+dsample <- diamonds[sample(nrow(diamonds), 100),]
+
+ggplot(data = dsample, aes (x=carat,y=price, color = color)) +
+  geom_point() +
+  geom_smooth(method = lm)
+
+```
+
+
+* The same plot using sample data affirms the above conclusion
+
+```{r}
+
+ggplot(data = diamonds, aes (x=carat,y=price, color = color)) +
+  geom_boxplot()
+
+
+ggplot(data = dsample, aes (x=carat,y=price, color = color)) +
+  geom_line()
+
+```
+
+* The above boxplot and line plots clearly shows that average prices of diamonds depends on Carat size and Certain Colors of diamonds are more predominantly available with lower carat sizes. 
+* Color and Carat are also related and only certain clour diamonds are available with higher carats. 
+
+
+

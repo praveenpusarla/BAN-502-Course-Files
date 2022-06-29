@@ -1,0 +1,56 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+
+# Module 4 - Assignment 2
+## Pusarla, Praveenkumar
+### Data Cleansing
+
+```{r Load the packages and Files}
+library(tidyverse)
+library(readxl)
+CustomerChurn <- read_excel("CustomerChurn.xlsx", 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "text", "text", "text", "text", "text", 
+        "numeric", "numeric", "text"))
+head(CustomerChurn)
+```
+#### Cleaning Missing Data
+
+Replace the missing values of MonthlyCharges **(NaN)** with **Median** of MonthlyCharges non missing values.
+Replace the missing values of TotalCharges **(NA)** with **Mean** of TotalCharges non missing values.
+Replace the missing values of PaymentMenthod **(NA)** with **ElectronicCheck**
+
+```{r Data Cleaning}
+summary(CustomerChurn)
+
+CustomerChurn2 <- mutate(CustomerChurn,MonthlyCharges = replace(MonthlyCharges,
+is.nan(MonthlyCharges), median(MonthlyCharges, na.rm = TRUE)))
+
+CustomerChurn2 <- mutate(CustomerChurn2,TotalCharges = replace(TotalCharges,
+is.na(TotalCharges), mean(TotalCharges, na.rm = TRUE)))
+
+CustomerChurn2 <- mutate(CustomerChurn2,PaymentMethod = replace(PaymentMethod,
+is.na(PaymentMethod), "ElectronicCheck"))
+
+CustomerChurn3 <- select(CustomerChurn2,PaymentMethod,MonthlyCharges,TotalCharges)
+print(CustomerChurn3)
+
+```
+
+```{r Outliers}
+
+boxplot(CustomerChurn2$tenure)
+boxplot(CustomerChurn2$tenure)$out
+outliers <- boxplot(CustomerChurn2$tenure)$out
+CustomerChurn2[which(CustomerChurn2$tenure %in% outliers),]
+CustomerChurn3 <- CustomerChurn2[-which(CustomerChurn2$tenure %in% outliers),]
+boxplot(CustomerChurn3$tenure)
+
+
+```
+

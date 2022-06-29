@@ -1,0 +1,68 @@
+
+```{r}
+options(tidyverse.quiet = TRUE)
+library(titanic)
+library(tidyverse)
+library(tidymodels)
+library(mice) #package for imputation
+library(VIM) #visualizing missingness
+library(naniar) #visualizing missingness
+library(skimr) #alternative way to view dataset summaries
+library(UpSetR) #visualizing missingness
+```
+
+```{r}
+library(readr)
+class_grades <- read_csv("class-grades.csv")
+grade = class_grades
+
+str(grade)
+summary(grade)
+skim(grade)
+
+```
+
+Task1 
+**Tutorial - 1 value, Midterm - 3 values, Takehome - 3 values, Final - 4 values**
+```{r}
+vim_plot = aggr(grade, numbers = TRUE, prop = c(TRUE, FALSE),cex.axis=.6)
+```
+
+Task2: **Yes**
+
+```{r}
+grade_rowdel = grade %>% drop_na() 
+#alternatively can specify which variable(s) on which to do the drop_na
+#drop_na(Age)
+skim(grade_rowdel)
+```
+
+Task3 **89**
+
+```{r}
+grade_coldel = grade %>% select(-Tutorial, -Midterm, -TakeHome, -Final) 
+vim_plot = aggr(grade_coldel, numbers = TRUE, prop = c(TRUE, FALSE),cex.axis=.7)
+skim(grade_coldel)
+```
+Task4 **99**
+
+Task5 **Row-wise deletion of missing values**
+
+```{r}
+set.seed(123) #sets seed for random number generator
+imp_Final = mice(grade, m=5, method='pmm', printFlag=FALSE)
+#m is the number of imputations, 5 is a reasonable value as a default
+#pmm is "predictive mean matching" = imputation method for numeric data
+#printFlag reduces amount of output
+summary(imp_Final)
+```
+
+```{r}
+densityplot(imp_Final, ~Final) #red imputed, blue original
+```
+```{r}
+grade_complete = complete(imp_Final) 
+summary(grade_complete)
+```
+
+Task 6 **68.33**

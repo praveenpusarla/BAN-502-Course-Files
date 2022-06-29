@@ -1,0 +1,125 @@
+---
+output:
+  word_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: inline
+---
+# Module 3 - Assignment 1
+## Pusarla, Praveenkumar
+### Data Visualization
+
+We are using the datasets containing candy rankings and production that are attached in the the Canvas course website. The CSV files candy_data and candy_production should be loaded to complete this assignment.
+
+```{r Loading packages and data sets}
+library(tidyverse)
+candy_data <- read_csv("candy_data.csv")
+candy_production <- read_csv("candy_production.csv", 
+    col_types = cols(observation_date = col_date(format = "%Y-%m-%d")))
+head(candy_data)
+head(candy_production)
+```
+
+#### Visualization with Scatterplots (geom_point)
+
+To build a scatterplot to compare the sugar content to price of various types of candy on the market
+
+```{r Scaterplot}
+ggplot(data = candy_data, aes (x=sugarpercent,y=pricepercent)) +
+  geom_point()
+
+```
+
+
+To visual representation of how closely sugarpercent and pricepercent are related to each other, and the strength of that relationship
+
+
+```{r Scaterpolt to view reationship}
+ggplot(data = candy_data, aes (x=sugarpercent,y=pricepercent)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+```
+
+To know what each dot represents an additional argument is needed in the aes() command to include a label.
+
+```{r Scaterplot with labeling each point}
+ggplot(data = candy_data, aes (x=sugarpercent,y=pricepercent,  label = competitorname)) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  geom_text() 
+
+```
+
+Formatting the name of the dots to appear properly and easy to read.
+
+
+```{r Scatorplot - Making the labeling more readable}
+ggplot(data = candy_data, aes (x=sugarpercent,y=pricepercent,  label = competitorname)) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  geom_text(check_overlap = T,
+            vjust = "bottom",
+            nudge_y = 0.01,
+            angle = 30,
+            size = 2 
+            )
+
+```
+
+
+Adding title and proper naming of the X and Y axis
+
+
+```{r Sacaterplot with Proper title and labeling}
+ggplot(data = candy_data, aes (x=sugarpercent,y=pricepercent,  label = competitorname)) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  geom_text(check_overlap = T,
+            vjust = "bottom",
+            nudge_y = 0.01,
+            angle = 30,
+            size = 2 
+            ) +
+  labs(title = "Sugar by Price Scatterplot",
+ x = "Sugar content (percentile)", 
+ y = "Price (percentile)"
+ )
+```
+
+From the graph we can clearly say that **ReeseÕs Miniatures** candy is having the most sugar content with lowest price. Also **Nestle Smarties** candy is the most expensive with highest sugar content. 
+
+
+#### Line Chart of Candy Production
+
+we are using the candy production dataset to display a specific date and to compare production during a month to 2012
+
+```{r Linechart}
+ggplot(data = candy_production, aes(x=observation_date, y= IPG3113N)) +
+  geom_line() +
+  geom_smooth() +
+  labs(title = "Monthly Candy Production",
+ x = "Year", 
+ y = "As percent of 2012 production"
+ )
+```
+
+
+#### Bar Chart of Ingredients
+
+
+```{r Barchart}
+ggplot(data = candy_data, aes (x=chocolate)) +
+  geom_bar()
+
+
+```
+```{r Barchart with Booleanfunction}
+# select out the columns that have the features of the candy (chocolate, caramel, etc.)
+candyFeatures <- candy_data %>% select(2:10)
+# make sure that these are booleans (logical)
+candyFeatures[] <- lapply(candyFeatures, as.logical)
+ggplot(data = candyFeatures, aes (x=chocolate)) +
+  geom_bar()
+```
+

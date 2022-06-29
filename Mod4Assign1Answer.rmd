@@ -1,0 +1,122 @@
+---
+output:
+  word_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: inline
+---
+# Module 4 - Assignment 1
+## Pusarla, Praveenkumar
+### Data Transformation
+
+```{r Loadpackages and dataFiles}
+library(tidyverse)
+library(readr)
+state_income <- read_csv("state_income.csv")
+head(state_income)
+
+```
+
+#### State Incomes
+
+
+A subset of data from the state income data file will be used for this assignment. The variables used for this exercise will be:
+
+1. State_Name - Variable Type: *Character*
+2. State_ab - Variable Type: *Character*
+3. County - Variable Type: *Character*
+4. City - Variable Type: *Character*
+5. Type - Variable Type: *Character*
+6. ALand - Variable Type: *double*
+7. Mean - Variable Type: *double*
+8. Median - Variable Type: *double*
+9. Stdev - Variable Type: *double*
+
+```{r Selecting and arranging}
+
+state_income1 <- select(state_income,State_Name,State_ab,County,City,Type,ALand,Mean,Median,Stdev,everything())
+head(state_income1)
+
+state_income2 <- select(state_income,State_ab,State_Name,County,City,Type,ALand,Mean,Median,Stdev)
+head(state_income2)
+
+state_income2 <- rename(state_income2, SquareArea = ALand)
+state_income2 <- rename(state_income2, IncomeMean = Mean)
+state_income2 <- rename(state_income2, IncomeMedian = Median)
+state_income2 <- rename(state_income2, IncomeStDev = Stdev)
+head(state_income2)
+
+NC_income <- filter(state_income2,State_ab =="NC")
+head(NC_income)
+
+```
+
+#### NC Incomes
+
+I will be working with NC_Income data set for this assignment to create summaries of the incomes within North Carolina 
+including summaries by county, city and type. This data set contains total of 915 observation with 9 variable values.
+
+```{r Summarization on NC income}
+
+NC_income <- arrange(NC_income,County)
+
+summary1 <- group_by(NC_income,County) 
+summary1 <- summarise (summary1, mean= mean(IncomeMean))
+head(summary1)
+summary2 <- NC_income %>%
+ group_by(City) %>%
+ summarise (mean = mean(IncomeMean))
+head(summary2)
+```
+
+The **summary1** data set contains the mean income of the NC residents by county. 
+The **summary2** data set conatins the mean income of the NC residents by city.
+
+```{r Summarization by type}
+
+summary3 <- NC_income %>%
+ group_by(Type) %>%
+ summarise (mean = mean(IncomeMean))
+head(summary3)
+
+```
+
+The **summary3** data set contains the mean income of NC residents by type.
+
+
+#### Income Visualization
+
+```{r visualization of NC data}
+
+ggplot(data = summary1, aes (x=County,y=mean)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90,vjust =0.5, hjust=1)) +
+  labs(title = "Scatterplot of NC Residents income by County",
+          x = "NC County", 
+          y = "Income"
+       )
+
+```
+
+In the NC state **Wake County** has the highest average income and **Stanly County** has the lowest average income. The county with second lowest average income is **Surry County**
+
+```{r Visuvalization for complete data}
+head(state_income2)
+AvgStateIncome <- state_income2 %>%
+ group_by(State_ab) %>%
+ summarise (mean = mean(IncomeMean))
+head(AvgStateIncome)
+
+AvgStateIncome <- filter(AvgStateIncome, grepl("N",State_ab))
+head(AvgStateIncome)
+
+ggplot(data = AvgStateIncome, aes (x=State_ab,y=mean)) +
+  geom_point() +
+  labs(title = "Scatterplot of US States (conatining letter N) Residents income ",
+          x = "US States with Letter N", 
+          y = "Income"
+       )
+
+
+```
+The US state in the data set **"AvgStateIncome"** with highest average income is **"NJ"** and lower average income is **"TN"**

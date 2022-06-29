@@ -1,0 +1,111 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Module 5 - Assignment 2
+## Pusarla, Praveenkumar
+### More Data Wrangling
+
+```{r}
+library(tidyverse)
+library(readr)
+tuition_cost <- read_csv("tuition_cost.csv")
+tuition_cost
+```
+
+#### Creating tidy data using tidyr
+
+```{r Creating Tidy data}
+
+tuition_cost1 <- tuition_cost %>% 
+  pivot_longer(c('2017','2018','2019','2020'), names_to = 'year', values_to = 'tution')
+
+tuition_cost1
+
+tuition_cost2 <- separate(tuition_cost1,tution,into=c("InState","OutState"),sep='/',convert=TRUE)
+
+tuition_cost2
+
+```
+#### North Carolina Schools
+
+
+```{r NC Schools}
+
+Public <- tuition_cost2 %>%
+  select(state, state_code, everything()) %>%
+  filter(state_code== "NC" & degree_length == "4 Year" & type == "Public")
+
+ggplot(Public, mapping = aes(year,InState, color=name)) +
+  geom_point() + 
+  theme(legend.title = element_blank())+ 
+  labs(title = "InState Tution for North Carolina Schools",
+          x = "Year", 
+          y = "Cost In $"
+       ) 
+
+```
+
+```{r UNC Analysis}
+
+UNC <- filter(Public,grepl("University of North Carolina",name))
+
+UNC
+
+ggplot(UNC, mapping = aes(year,InState, color=name)) +
+  geom_point() + 
+  theme(legend.title = element_blank())+ 
+  theme(legend.position="bottom") +
+  guides(colour = guide_legend(nrow = 4)) +
+  labs(title = "InState Tution for UNC Schools",
+          x = "Year", 
+          y = "Cost In $"
+       ) 
+
+
+```
+
+#### Additional Universities
+
+```{r Colorado Universities}
+
+
+Public_CO <- tuition_cost2 %>%
+  select(state, state_code, everything()) %>%
+  filter(state_code== "CO" & degree_length == "4 Year" & type == "Public")
+
+Public_CO
+
+UCO <- filter(Public_CO,grepl("Colorado",name))
+UCO
+
+ggplot(UCO, mapping = aes(year,OutState, color=name)) +
+  geom_point() + 
+  labs(title = "OutState Tution for Colorado Schools",
+          x = "Year", 
+          y = "Cost In $"
+       ) 
+
+
+```
+
+```{r South Carolina}
+Public_SC <- tuition_cost2 %>%
+  select(state, state_code, everything()) %>%
+  filter(state_code== "SC" & degree_length == "2 Year" & type == "Public")
+
+Public_SC
+
+ggplot(Public_SC, mapping = aes(year,InState, color=name)) +
+  geom_point() + 
+  theme(legend.title = element_blank())+ 
+    labs(title = "InState Tution for South Carolina Schools",
+          x = "Year", 
+          y = "Cost In $"
+       ) 
+
+
+```
+
